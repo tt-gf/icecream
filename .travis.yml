@@ -63,6 +63,12 @@ before_script:
       export CXXFLAGS="${SAN_FLAGS} ${CXXFLAGS} -Wall -Wextra"
       export LDFLAGS="${SAN_FLAGS} ${LDFLAGS}"
 
+after_success:
+  - make install
+  - |
+     if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+          hdiutil create -volname icecream-1.1-$TRAVIS_COMMIT -srcfolder $PWD/_inst -ov icecream-1.1-$TRAVIS_COMMIT.dmg
+     fi
 
 addons:
   apt:
@@ -73,3 +79,11 @@ addons:
     - liblzo2-dev
     - docbook2x
     - realpath
+
+deploy:
+  provider: bintray
+  file: "$PWD/icecream-1.1-$TRAVIS_COMMIT.dmg"
+  user: "martinm82"
+  key: "aa58c1fd537618ee23770dfad5cb85fe585ab478"
+  dry-run: "true"
+
