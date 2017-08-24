@@ -63,7 +63,11 @@ after_success:
 - make install
 - |
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-       hdiutil create -volname icecream-1.1-$TRAVIS_COMMIT -srcfolder $PWD/_inst -ov icecream-1.1-$TRAVIS_COMMIT.dmg
+      hdiutil create -volname icecream-1.1-$TRAVIS_COMMIT -srcfolder $PWD/_inst -ov icecream-1.1-$TRAVIS_COMMIT.dmg
+  fi
+- |
+  if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      touch icecream-1.1-$TRAVIS_COMMIT.tar.gz
   fi
 addons:
   apt:

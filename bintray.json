@@ -31,7 +31,8 @@
 
     "files":
         [
-        {"includePattern": "(icecream.*.dmg)", "uploadPattern": "dmg/$1"}
+        {"includePattern": "(icecream.*.dmg)", "uploadPattern": "osx/$1"},
+        {"includePattern": "(icecream.*.tar.gz)", "uploadPattern": "linux/$1"}
         ],
     "publish": true
 }
