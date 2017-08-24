@@ -1,75 +1,70 @@
 language: cpp
-
 script:
-  - ./autogen.sh
-  - ./configure --prefix=$PWD/_inst
-  - make
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make test; fi
-
+- "./autogen.sh"
+- "./configure --prefix=$PWD/_inst"
+- make
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make test; fi
 matrix:
   include:
   - os: linux
-    sudo: true # for setcap so we can run the tests in chroot.
+    sudo: true
     compiler: gcc
     dist: trusty
   - os: linux
-    sudo: true # for setcap so we can run the tests in chroot.
+    sudo: true
     compiler: clang
     dist: trusty
   - os: linux
-    sudo: true # for setcap so we can run the tests in chroot.
+    sudo: true
     compiler: clang
     env: BUILD_TYPE=asan
     dist: trusty
   - os: linux
-    sudo: true # for setcap so we can run the tests in chroot.
+    sudo: true
     compiler: clang
     env: BUILD_TYPE=lsan
     dist: trusty
   - os: linux
-    sudo: true # for setcap so we can run the tests in chroot.
+    sudo: true
     compiler: clang
     env: BUILD_TYPE=ubsan
     dist: trusty
   - os: osx
     before_install:
-      - brew update
-      - brew install lzo docbook2x
+    - brew update
+    - brew install lzo docbook2x
   allow_failures:
   - compiler: clang
     env: BUILD_TYPE=lsan
-
 before_script:
-  - |
-     if [ "$BUILD_TYPE" == "asan" ]; then
-         export SAN_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
-     fi
-  - |
-     if [ "$BUILD_TYPE" == "lsan" ]; then
-         export SAN_FLAGS="-fsanitize=leak -fno-omit-frame-pointer"
-     fi
-  - |
-     if [ "$BUILD_TYPE" == "msan" ]; then
-         export SAN_FLAGS="-fsanitize=memory-fno-omit-frame-pointer"
-     fi
-  - |
-     if [ "$BUILD_TYPE" == "ubsan" ]; then
-         export SAN_FLAGS="-fsanitize=undefined -fno-omit-frame-pointer"
-         export LDFLAGS="$UBSAN_FLAGS ${LDFLAGS}"
-         export UBSAN_OPTIONS=print_stacktrace=1
-     fi
-  - |
-      export CFLAGS="${SAN_FLAGS} ${CFLAGS} -Wall -Wextra"
-      export CXXFLAGS="${SAN_FLAGS} ${CXXFLAGS} -Wall -Wextra"
-      export LDFLAGS="${SAN_FLAGS} ${LDFLAGS}"
-
+- |
+  if [ "$BUILD_TYPE" == "asan" ]; then
+      export SAN_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
+  fi
+- |
+  if [ "$BUILD_TYPE" == "lsan" ]; then
+      export SAN_FLAGS="-fsanitize=leak -fno-omit-frame-pointer"
+  fi
+- |
+  if [ "$BUILD_TYPE" == "msan" ]; then
+      export SAN_FLAGS="-fsanitize=memory-fno-omit-frame-pointer"
+  fi
+- |
+  if [ "$BUILD_TYPE" == "ubsan" ]; then
+      export SAN_FLAGS="-fsanitize=undefined -fno-omit-frame-pointer"
+      export LDFLAGS="$UBSAN_FLAGS ${LDFLAGS}"
+      export UBSAN_OPTIONS=print_stacktrace=1
+  fi
+- |
+  export CFLAGS="${SAN_FLAGS} ${CFLAGS} -Wall -Wextra"
+  export CXXFLAGS="${SAN_FLAGS} ${CXXFLAGS} -Wall -Wextra"
+  export LDFLAGS="${SAN_FLAGS} ${LDFLAGS}"
 after_success:
-  - make install
-  - |
-     if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-          hdiutil create -volname icecream-1.1-$TRAVIS_COMMIT -srcfolder $PWD/_inst -ov icecream-1.1-$TRAVIS_COMMIT.dmg
-     fi
-
+- make install
+- |
+  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+       hdiutil create -volname icecream-1.1-$TRAVIS_COMMIT -srcfolder $PWD/_inst -ov icecream-1.1-$TRAVIS_COMMIT.dmg
+  fi
 addons:
   apt:
     packages:
@@ -82,8 +77,9 @@ addons:
 
 deploy:
   provider: bintray
-  file: "$PWD/icecream-1.1-$TRAVIS_COMMIT.dmg"
-  user: "martinm82"
-  key: "aa58c1fd537618ee23770dfad5cb85fe585ab478"
-  dry-run: "true"
-
+  file: bintray.json
+  user: martinm82
+  on:
+    all_branches: true
+  key:
+    secure: J3rdzE5CGMXtirAxJ/5oROicCxzLFBb0Ct8af/UlAMdqkA/cUjWsVokyXs7xbZz3M4sXglWRZxtMKk+32h+eCjeaHvvlJ45qgFny0J1B9csybX1ByM4LBkQl0VOpbD4CyKjUUuBO5+4oxlluFFeugbKvlAigdfSNVz8UiIBBZyu4mvAw4gcsc1/pRGNLhEHnsmni4oyJ19ePdqp7IpHYj4hkzM4vSgNCuckCRHiy8XC/5Ezd+CXH0TSkrj8HgpfLPD2oQk86ttmRwRkGK13ex2Phsz3nSRotqRCZH730nD5oYCzjZvw48y1Fsz7FByYRoRzBXZuWcei/mbbjrOi9JSD2a8o3o+QHSOpX1UefThrY2GO53WgND9ABcHEWu68oZzARUsQ/vnw7jbBToBDCREqPAYDTmU96uYEfe6TevGruSb1cEPXDhqtqzyKJc1A+lQv9vwfDH4YwYZvUmKrFNOUhbfh0k6NiaBoAXlT+TSJdfA+hWlXQGR0tkvTPH61urZv0RAO08xWFBDAyPh9XDQqBjlghw0ce9UksxBgWIRP4pklgWolNjHtc2O3Qxwb4kt3BhCpOQlx8fZZ0pIzn9usddxitN6GFDbeXeUhGn+3I7IJkMx9ZmFZkCGYGfYe5t191jjg3wMdB/LpJIaq3QyRn28A4UkJXdnAOFlpjLIM=
