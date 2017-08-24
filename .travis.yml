@@ -68,6 +68,7 @@ after_success:
 - |
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       touch icecream-1.1-$TRAVIS_COMMIT.tar.gz
+      ls -lrt
   fi
 addons:
   apt:
