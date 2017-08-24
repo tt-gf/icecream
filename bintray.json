@@ -31,7 +31,7 @@
 
     "files":
         [
-        {"includePattern": "icecream.*.dmg", "excludePattern": ".*/do-not-deploy/.*", "uploadPattern": "*.dmg"}
+        {"includePattern": "(icecream.*.dmg)", "uploadPattern": "dmg/$1"}
         ],
     "publish": true
 }
