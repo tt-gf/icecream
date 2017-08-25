@@ -9,8 +9,8 @@ m4_define([icecream_version_major],[1])
 m4_define([icecream_version_minor],[1])
 #m4_define([icecream_version_micro],[98])
 m4_ifval([icecream_version_micro],
-	m4_define([icecream_version],[icecream_version_major.icecream_version_minor.icecream_version_micro]),
-	m4_define([icecream_version],[icecream_version_major.icecream_version_minor]))
+  m4_define([icecream_version],[icecream_version_major.icecream_version_minor.icecream_version_micro]),
+  m4_define([icecream_version],[icecream_version_major.icecream_version_minor]))
 
 # =============
 # Automake init
@@ -27,6 +27,7 @@ AC_LANG([C++])
 # ===========================
 AC_PROG_CC
 AC_PROG_CXX
+AX_CXX_COMPILE_STDCXX(11,,)
 if test "$GCC" = yes; then
     cast_align=-Wcast-align
     wshadow=
@@ -142,7 +143,7 @@ AC_CHECK_HEADERS([sys/user.h])
 dnl Checks for types
 
 AC_CHECK_TYPES([sa_family_t, socklen_t, in_port_t, in_addr_t], , ,
-	       [
+         [
 #if HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -193,7 +194,7 @@ if test x"$ac_cv_func_connect" = x"no"; then
     esac
     dnl We can't just call AC_CHECK_FUNCS(connect) here, because the value
     dnl has been cached.
-    if test x"$ac_cv_lib_socket_connect" = x"yes" || 
+    if test x"$ac_cv_lib_socket_connect" = x"yes" ||
        test x"$ac_cv_lib_inet_connect" = x"yes"; then
         # ac_cv_func_connect=yes
         # don't!  it would cause AC_CHECK_FUNC to succeed next time configure is run
@@ -215,7 +216,7 @@ AC_CHECK_FUNCS([getloadavg])
 AC_CHECK_DECLS([snprintf, vsnprintf, vasprintf, asprintf, strndup])
 
 AC_CHECK_LIB(lzo2, lzo1x_1_compress, LZO_LDADD=-llzo2,
-	AC_MSG_ERROR([Could not find lzo2 library - please install lzo-devel]))
+  AC_MSG_ERROR([Could not find lzo2 library - please install lzo-devel]))
 AC_SUBST(LZO_LDADD)
 
 AC_CHECK_LIB([dl], [dlsym], [DL_LDADD=-ldl])

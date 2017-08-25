@@ -574,7 +574,7 @@ bool Daemon::setup_listen_fds()
             myaddr.sin_port = htons(daemon_port);
             myaddr.sin_addr.s_addr = INADDR_ANY;
 
-            if (bind(tcp_listen_fd, (struct sockaddr *)&myaddr,
+            if (::bind(tcp_listen_fd, (struct sockaddr *)&myaddr,
                      sizeof(myaddr)) < 0) {
                 log_perror("bind()");
                 sleep(2);
@@ -621,7 +621,7 @@ bool Daemon::setup_listen_fds()
             strncpy(myaddr.sun_path, default_socket.c_str() , sizeof(myaddr.sun_path) - 1);
             myaddr.sun_path[sizeof(myaddr.sun_path) - 1] = '\0';
             if(default_socket.length() > sizeof(myaddr.sun_path) - 1) {
-                log_error() << "default socket path too long for sun_path" << endl;	
+                log_error() << "default socket path too long for sun_path" << endl;
             }
             if (-1 == unlink(myaddr.sun_path)){
                 log_perror("unlink failed") << "\t" << myaddr.sun_path << endl;
@@ -656,7 +656,7 @@ bool Daemon::setup_listen_fds()
         }
     }
 
-    if (bind(unix_listen_fd, (struct sockaddr*)&myaddr, sizeof(myaddr)) < 0) {
+    if (::bind(unix_listen_fd, (struct sockaddr*)&myaddr, sizeof(myaddr)) < 0) {
         log_perror("bind()");
 
         if (old_umask != -1U) {
