@@ -94,6 +94,14 @@ static bool analyze_program(const char *name, CompileJob &job)
     return false;
 }
 
+static bool is_argument_compatible_with_preprocessor(const char* argument)
+{
+    if (!str_equal("-arch", argument)) {
+        return true;
+    }
+    return false;
+}
+
 static bool is_argument_with_space(const char* argument)
 {
     // List taken from https://clang.llvm.org/docs/genindex.html
@@ -562,11 +570,12 @@ bool analyse_argv(const char * const *argv, CompileJob &job, bool icerun, list<s
                     }
                 }
             } else {
-                args.append(a, Arg_Rest);
-
+                Argument_Preprocessor_Type preprocessorType = is_argument_compatible_with_preprocessor(a) ?
+                          Arg_Preprocessor_Compatible : Arg_Preprocessor_Incompatible;
+                args.append(a, Arg_Rest, preprocessorType);
                 if (is_argument_with_space(a)) {
                     if (argv[i + 1]) {
-                        args.append(argv[++i], Arg_Rest);
+                        args.append(argv[++i], Arg_Rest, preprocessorType);
                     }
                 }
             }
@@ -604,7 +613,9 @@ bool analyse_argv(const char * const *argv, CompileJob &job, bool icerun, list<s
         string ifile;
 
         for (ArgumentsList::iterator it = args.begin(); it != args.end();) {
-            if (it->first == "-") {
+            const std::string& name = std::get<0>(*it);
+            const Argument_Type argType = std::get<1>(*it);
+            if (name == "-") {
                 always_local = true;
                 log_info() << "stdin/stdout argument, building locally" << endl;
                 break;
@@ -612,22 +623,22 @@ bool analyse_argv(const char * const *argv, CompileJob &job, bool icerun, list<s
 
             // Skip compiler arguments which are followed by another
             // argument not starting with -.
-            if (it->first == "-Xclang" || it->first == "-x" || is_argument_with_space(it->first.c_str())) {
+            if (name == "-Xclang" || name == "-x" || is_argument_with_space(name.c_str())) {
                 ++it;
                 ++it;
-            } else if (it->second != Arg_Rest || it->first.at(0) == '-'
-                       || it->first.at(0) == '@') {
+            } else if (argType != Arg_Rest || name.at(0) == '-'
+                       || name.at(0) == '@') {
                 ++it;
             } else if (ifile.empty()) {
 #if CLIENT_DEBUG
-                log_info() << "input file: " << it->first << endl;
+                log_info() << "input file: " << name << endl;
 #endif
-                job.setInputFile(it->first);
-                ifile = it->first;
+                job.setInputFile(name);
+                ifile = name;
                 it = args.erase(it);
             } else {
                 log_info() << "found another non option on command line. Two input files? "
-                           << it->first << endl;
+                           << name << endl;
                 always_local = true;
                 args = backup;
                 job.setInputFile(string());

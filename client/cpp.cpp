@@ -136,7 +136,7 @@ pid_t call_cpp(CompileJob &job, int fdwrite, int fdread)
             }
         }
 
-        appendList(flags, job.restFlags());
+        appendList(flags, job.filterFlags(Arg_Rest, Arg_Preprocessor_Incompatible));
         int argc = flags.size();
         argc++; // the program
         argc += 2; // -E file.i
@@ -159,7 +159,7 @@ pid_t call_cpp(CompileJob &job, int fdwrite, int fdread)
         argv[i++] = 0;
     }
 
-#if 0
+#if 1
     printf("forking ");
 
     for (int index = 0; argv[index]; index++) {

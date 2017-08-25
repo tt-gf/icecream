@@ -27,6 +27,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <tuple>
 
 typedef enum {
     Arg_Unspecified,
@@ -35,11 +36,16 @@ typedef enum {
     Arg_Rest
 } Argument_Type;
 
-class ArgumentsList : public std::list<std::pair<std::string, Argument_Type> >
+typedef enum {
+    Arg_Preprocessor_Compatible,
+    Arg_Preprocessor_Incompatible
+} Argument_Preprocessor_Type;
+
+class ArgumentsList : public std::list<std::tuple<std::string, Argument_Type, Argument_Preprocessor_Type> >
 {
 public:
-    void append(std::string s, Argument_Type t) {
-        push_back(make_pair(s, t));
+    void append(std::string s, Argument_Type t, Argument_Preprocessor_Type p = Arg_Preprocessor_Compatible) {
+        push_back(std::make_tuple(s, t, p));
     }
 };
 
@@ -119,6 +125,8 @@ public:
     std::list<std::string> remoteFlags() const;
     std::list<std::string> restFlags() const;
     std::list<std::string> allFlags() const;
+    std::list<std::string> filterFlags(Argument_Type argumentType,
+                                       Argument_Preprocessor_Type preprocessType) const;
 
     void setInputFile(const std::string &file)
     {
@@ -234,7 +242,7 @@ inline std::string concat_args(const std::list<std::string> &args)
 
     for (std::list<std::string>::const_iterator it = args.begin(); it != args.end();) {
         str << *it++;
-	if (it != args.end())
+  if (it != args.end())
             str << ", ";
     }
     return str.str() + "'";

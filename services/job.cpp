@@ -33,8 +33,8 @@ list<string> CompileJob::flags(Argument_Type argumentType) const
     list<string> args;
 
     for (ArgumentsList::const_iterator it = m_flags.begin(); it != m_flags.end(); ++it) {
-        if (it->second == argumentType) {
-            args.push_back(it->first);
+        if (std::get<1>(*it) == argumentType) {
+            args.push_back(std::get<0>(*it));
         }
     }
 
@@ -56,12 +56,23 @@ list<string> CompileJob::restFlags() const
     return flags(Arg_Rest);
 }
 
+list<string> CompileJob::filterFlags(Argument_Type argumentType, Argument_Preprocessor_Type preprocessType) const
+{
+    list<string> args;
+    for (ArgumentsList::const_iterator it = m_flags.begin(); it != m_flags.end(); ++it) {
+        if (std::get<1>(*it) == argumentType && std::get<2>(*it) != preprocessType) {
+            args.push_back(std::get<0>(*it));
+        }
+    }
+    return args;
+}
+
 list<string> CompileJob::allFlags() const
 {
     list<string> args;
 
     for (ArgumentsList::const_iterator it = m_flags.begin(); it != m_flags.end(); ++it) {
-        args.push_back(it->first);
+        args.push_back(std::get<0>(*it));
     }
 
     return args;
@@ -77,7 +88,7 @@ unsigned int CompileJob::argumentFlags() const
     unsigned int result = Flag_None;
 
     for (ArgumentsList::const_iterator it = m_flags.begin(); it != m_flags.end(); ++it) {
-        const string arg = it->first;
+        const string arg = std::get<0>(*it);
 
         if (arg.at(0) == '-') {
             if (arg.length() == 1) {
