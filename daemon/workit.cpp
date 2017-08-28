@@ -667,7 +667,9 @@ int work_it(CompileJob &j, unsigned int job_stat[], MsgChannel *client, CompileR
                                                         + (ru.ru_stime.tv_usec / 1000);
                     job_stat[JobStatistics::sys_pfaults] = ru.ru_majflt + ru.ru_nswap + ru.ru_minflt;
                 }
-
+                if (return_value && !rmsg.err.empty()) {
+                    error_client(client, rmsg.err);
+                }
                 return return_value;
             }
         }

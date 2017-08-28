@@ -332,6 +332,8 @@ int handle_connection(const string &basedir, CompileJob *job,
         delete msg;
         delete job;
 
+        log_info() << "workit returned: " << e.exitcode() << endl; // add this line
+
         _exit(e.exitcode());
     }
 }
